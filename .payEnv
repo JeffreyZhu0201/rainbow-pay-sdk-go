@@ -1,0 +1,10 @@
+
+
+PAY_URL = http://api.xn--6krw8b915a62m.xn--io0a7i/submit.php
+PAY_PID=12883
+PAY_METHOD=web
+PAY_TYPE=alipay
+PAY_NOTIFY_URL=http://a080648.r3.cpolar.cn/notify
+PAY_RETURN_URL=http://a080648.r3.cpolar.cn/return
+PAY_SIGN_TYPE=MD5
+PRIVATE_KEY=aaLu0KA0aAa3F9lk8Aa9kS8rms883zzN
