@@ -1,0 +1,111 @@
+/*
+ * @Author: Jeffrey Zhu 1624410543@qq.com
+ * @Date: 2025-03-31 13:41:43
+ * @LastEditors: Jeffrey Zhu 1624410543@qq.com
+ * @LastEditTime: 2025-03-31 13:47:32
+ * @FilePath: \rainbow-pay-sdk-go\pkg\PaySdk\makePayment.go
+ * @Description: File Description Here...
+ *
+ * Copyright (c) 2025 by JeffreyZhu, All Rights Reserved.
+ */
+package Payservice
+
+import (
+	"log"
+	"net/http"
+	"os"
+	"strconv"
+
+	"github.com/JeffreyZhu0201/rainbow-pay-sdk-go/internal/models"
+	"github.com/JeffreyZhu0201/rainbow-pay-sdk-go/internal/utils"
+	"github.com/gin-gonic/gin"
+	// "github.com/google/uuid"
+)
+
+func CreateOrder(order models.Order) models.Response {
+	// 处理创建订单的逻辑
+	// 这里可以使用 Stripe 或其他支付网关的 SDK 来处理订单创建请求
+	// 例如，创建一个订单并返回给前端
+
+	pid, _ := strconv.Atoi(os.Getenv("PAY_PID"))
+	paymentParams := make(map[string]interface{})
+	paymentParams["pid"] = pid
+	paymentParams["notify_url"] = os.Getenv("PAY_NOTIFY_URL")
+	paymentParams["return_url"] = os.Getenv("PAY_RETURN_URL")
+	paymentParams["sign_type"] = os.Getenv("PAY_SIGN_TYPE")
+
+	paymentParams["out_trade_no"] = order.OutTradeNo.String()
+	paymentParams["name"] = order.CommodityName
+	// paymentParams["count"] = countUint
+	paymentParams["money"] = order.Amount
+
+	// 处理支付请求的逻辑
+	// 这里可以使用 Stripe 或其他支付网关的 SDK 来处理支付请求
+	// 例如，创建一个支付意图并返回给前端
+
+	signStr, _ := utils.SortMapAndSign(paymentParams)
+	paymentUrl, err := utils.Post(os.Getenv("PAY_URL") + "?" + signStr.String())
+
+	if err != nil {
+		// 处理错误
+		return models.Response{Code: 200, Message: "Order created failed", Data: map[string]interface{}{"payment_url": paymentUrl}}
+	}
+
+	if paymentUrl == "" {
+		return models.Response{Code: 200, Message: "Order created failed", Data: map[string]interface{}{"payment_url": paymentUrl}}
+	}
+
+	return models.Response{Code: 200, Message: "Order created successfully", Data: map[string]interface{}{"payment_url": paymentUrl}}
+}
+
+func Notify(c *gin.Context) {
+	// 处理支付通知的逻辑
+
+	queryParams := make(map[string]interface{})
+
+	queryParams["out_trade_no"] = c.Query("out_trade_no")
+	queryParams["pid"] = c.Query("pid")
+	queryParams["trade_no"] = c.Query("trade_no")
+	queryParams["trade_status"] = c.Query("trade_status")
+	queryParams["money"] = c.Query("money")
+	queryParams["sign"] = c.Query("sign")
+	queryParams["sign_type"] = c.Query("sign_type")
+	queryParams["type"] = c.Query("type")
+	queryParams["name"] = c.Query("name")
+
+	out_trade_no := c.Query("out_trade_no")
+	var subscribe models.Subscribe
+	var order models.Order
+	var user models.User
+
+	log.Println(queryParams)
+	// 验证签名
+	if c.Query("trade_status") != "TRADE_SUCCESS" {
+		c.JSON(http.StatusBadRequest, models.Response{Code: 400, Message: "Invalid trade_status"})
+		return
+	}
+
+	_, sign := utils.SortMapAndSign(queryParams)
+
+	if sign != c.Query("sign") {
+		log.Println("invalid sign", sign)
+		c.JSON(http.StatusBadRequest, models.Response{Code: 400, Message: "Invalid sign"})
+		return
+	}
+
+	if err := utils.DB.Model(&models.Order{}).Where("out_trade_no = ?", out_trade_no).First(&order).Update("paid_status", "paid").Error; err != nil {
+		c.JSON(http.StatusInternalServerError, models.Response{Code: 500, Message: "Failed to update order"})
+		return
+	}
+
+	if err := utils.DB.Model(&models.Subscribe{}).Where("id = ?", order.SubscribeId).First(&subscribe).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, models.Response{Code: 500, Message: "Failed to find order"})
+		return
+	}
+
+	if err := utils.DB.Model(&models.User{}).Where("id = ?", order.PaidUser).First(&user).Update("balance", *user.Balance+*subscribe.Balance).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, models.Response{Code: 500, Message: "Failed to update user subscribe_id"})
+		return
+	}
+	c.String(http.StatusOK, "success")
+}
