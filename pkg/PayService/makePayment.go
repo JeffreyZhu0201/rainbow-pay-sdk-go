@@ -16,8 +16,8 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/JeffreyZhu0201/rainbow-pay-sdk-go/internal/models"
-	"github.com/JeffreyZhu0201/rainbow-pay-sdk-go/internal/utils"
+	"github.com/JeffreyZhu0201/rainbow-pay-sdk-go.git/internal/models"
+	"github.com/JeffreyZhu0201/rainbow-pay-sdk-go.git/internal/utils"
 	"github.com/gin-gonic/gin"
 	// "github.com/google/uuid"
 )
@@ -34,7 +34,7 @@ func CreateOrder(order models.Order) models.Response {
 	paymentParams["return_url"] = os.Getenv("PAY_RETURN_URL")
 	paymentParams["sign_type"] = os.Getenv("PAY_SIGN_TYPE")
 
-	paymentParams["out_trade_no"] = order.OutTradeNo.String()
+	paymentParams["out_trade_no"] = order.OutTradeNo
 	paymentParams["name"] = order.CommodityName
 	// paymentParams["count"] = countUint
 	paymentParams["money"] = order.Amount
@@ -58,7 +58,7 @@ func CreateOrder(order models.Order) models.Response {
 	return models.Response{Code: 200, Message: "Order created successfully", Data: map[string]interface{}{"payment_url": paymentUrl}}
 }
 
-func Notify(c *gin.Context) {
+func Notify(c *gin.Context) models.Response {
 	// 处理支付通知的逻辑
 
 	queryParams := make(map[string]interface{})
@@ -73,39 +73,19 @@ func Notify(c *gin.Context) {
 	queryParams["type"] = c.Query("type")
 	queryParams["name"] = c.Query("name")
 
-	out_trade_no := c.Query("out_trade_no")
-	var subscribe models.Subscribe
-	var order models.Order
-	var user models.User
+	// out_trade_no := c.Query("out_trade_no")
 
-	log.Println(queryParams)
 	// 验证签名
 	if c.Query("trade_status") != "TRADE_SUCCESS" {
-		c.JSON(http.StatusBadRequest, models.Response{Code: 400, Message: "Invalid trade_status"})
-		return
+		return models.Response{Code: 400, Message: "Invalid trade_status"}
 	}
 
 	_, sign := utils.SortMapAndSign(queryParams)
 
 	if sign != c.Query("sign") {
 		log.Println("invalid sign", sign)
-		c.JSON(http.StatusBadRequest, models.Response{Code: 400, Message: "Invalid sign"})
-		return
+		return models.Response{Code: 400, Message: "Invalid sign"}
 	}
 
-	if err := utils.DB.Model(&models.Order{}).Where("out_trade_no = ?", out_trade_no).First(&order).Update("paid_status", "paid").Error; err != nil {
-		c.JSON(http.StatusInternalServerError, models.Response{Code: 500, Message: "Failed to update order"})
-		return
-	}
-
-	if err := utils.DB.Model(&models.Subscribe{}).Where("id = ?", order.SubscribeId).First(&subscribe).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, models.Response{Code: 500, Message: "Failed to find order"})
-		return
-	}
-
-	if err := utils.DB.Model(&models.User{}).Where("id = ?", order.PaidUser).First(&user).Update("balance", *user.Balance+*subscribe.Balance).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, models.Response{Code: 500, Message: "Failed to update user subscribe_id"})
-		return
-	}
-	c.String(http.StatusOK, "success")
+	return models.Response{Code: http.StatusOK, Message: "success"}
 }
