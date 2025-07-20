@@ -1,8 +1,13 @@
-# 彩虹易支付(V2) Go语言版本SDK
+# 🌈 彩虹易支付(V2) Go语言版本SDK
+
+[![Go](https://img.shields.io/badge/Go-1.20%2B-blue?logo=go)](https://golang.org/)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Platform](https://img.shields.io/badge/platform-cross--platform-lightgrey)
+![Status](https://img.shields.io/badge/status-active-brightgreen)
 
 本项目是彩虹易支付（V2）平台的 Go 语言 SDK，支持订单创建、签名、支付请求等常用功能，便于在 Go 项目中集成彩虹易支付。
 
-## 目录结构
+## 📁 目录结构
 
 ```
 .
@@ -24,7 +29,7 @@
         └── makePayment.go
 ```
 
-## 功能特性
+## ✨ 功能特性
 
 - 订单结构体与参数封装
 - MD5、RSA 签名工具
@@ -32,7 +37,7 @@
 - 支付下单接口封装
 - 便于扩展和二次开发
 
-## 快速开始
+## 🚀 快速开始
 
 1. **安装依赖**
 
@@ -71,7 +76,7 @@
    fmt.Println(resp)
    ```
 
-## 主要模块说明
+## 🗂️ 主要模块说明
 
 - [`internal/models/Order.go`](internal/models/Order.go)：订单结构体定义
 - [`internal/utils/MD5.go`](internal/utils/MD5.go)：MD5 签名相关
@@ -79,8 +84,10 @@
 - [`internal/utils/Fetches.go`](internal/utils/Fetches.go)：HTTP 请求工具
 - [`pkg/PayService/makePayment.go`](pkg/PayService/makePayment.go)：支付下单逻辑
 
-## 贡献
+## 🤝 贡献
 
 欢迎 issue 和 PR！
 
-##
+## 📝 License
+
+MIT
