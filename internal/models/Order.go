@@ -1,3 +1,11 @@
+/*
+ * @Author: JeffreyZhu 1624410543@qq.com
+ * @Date: 2025-07-27 17:13:53
+ * @LastEditors: JeffreyZhu 1624410543@qq.com
+ * @LastEditTime: 2025-07-27 17:46:50
+ * @FilePath: /workspace/rainbow-pay-sdk-go/internal/models/Order.go
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 package models
 
 // import (

@@ -1,27 +1,32 @@
 /*
  * @Author: Jeffrey Zhu 1624410543@qq.com
  * @Date: 2025-03-31 13:41:43
- * @LastEditors: Jeffrey Zhu 1624410543@qq.com
- * @LastEditTime: 2025-03-31 13:47:32
+ * @LastEditors: JeffreyZhu 1624410543@qq.com
+ * @LastEditTime: 2025-07-27 17:41:19
  * @FilePath: \rainbow-pay-sdk-go\pkg\PaySdk\makePayment.go
  * @Description: File Description Here...
  *
  * Copyright (c) 2025 by JeffreyZhu, All Rights Reserved.
  */
+
 package Payservice
 
 import (
-	"log"
-	"net/http"
 	"os"
 	"strconv"
 
 	"github.com/JeffreyZhu0201/rainbow-pay-sdk-go.git/internal/models"
 	"github.com/JeffreyZhu0201/rainbow-pay-sdk-go.git/internal/utils"
-	"github.com/gin-gonic/gin"
 	// "github.com/google/uuid"
 )
 
+// CreateOrder handles the creation of a payment order. It takes an Order model as input,
+// processes the payment parameters, and makes a request to the payment gateway.
+// Returns a Response containing the payment URL if successful, or an error message if failed.
+// The response includes:
+//   - Code: HTTP status code (200 for success/failure)
+//   - Message: Success/failure message
+//   - Data: Map containing the payment URL (key: "payment_url")
 func CreateOrder(order models.Order) models.Response {
 	// 处理创建订单的逻辑
 	// 这里可以使用 Stripe 或其他支付网关的 SDK 来处理订单创建请求
@@ -56,36 +61,4 @@ func CreateOrder(order models.Order) models.Response {
 	}
 
 	return models.Response{Code: 200, Message: "Order created successfully", Data: map[string]interface{}{"payment_url": paymentUrl}}
-}
-
-func Notify(c *gin.Context) models.Response {
-	// 处理支付通知的逻辑
-
-	queryParams := make(map[string]interface{})
-
-	queryParams["out_trade_no"] = c.Query("out_trade_no")
-	queryParams["pid"] = c.Query("pid")
-	queryParams["trade_no"] = c.Query("trade_no")
-	queryParams["trade_status"] = c.Query("trade_status")
-	queryParams["money"] = c.Query("money")
-	queryParams["sign"] = c.Query("sign")
-	queryParams["sign_type"] = c.Query("sign_type")
-	queryParams["type"] = c.Query("type")
-	queryParams["name"] = c.Query("name")
-
-	// out_trade_no := c.Query("out_trade_no")
-
-	// 验证签名
-	if c.Query("trade_status") != "TRADE_SUCCESS" {
-		return models.Response{Code: 400, Message: "Invalid trade_status"}
-	}
-
-	_, sign := utils.SortMapAndSign(queryParams)
-
-	if sign != c.Query("sign") {
-		log.Println("invalid sign", sign)
-		return models.Response{Code: 400, Message: "Invalid sign"}
-	}
-
-	return models.Response{Code: http.StatusOK, Message: "success"}
 }
