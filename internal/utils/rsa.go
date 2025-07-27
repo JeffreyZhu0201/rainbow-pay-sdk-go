@@ -1,8 +1,8 @@
 /*
  * @Author: Jeffrey Zhu 1624410543@qq.com
  * @Date: 2025-05-08 00:06:43
- * @LastEditors: Jeffrey Zhu 1624410543@qq.com
- * @LastEditTime: 2025-05-08 00:06:52
+ * @LastEditors: JeffreyZhu 1624410543@qq.com
+ * @LastEditTime: 2025-07-27 17:34:59
  * @FilePath: \RocketVPN\go-backend\utils\RSA.go
  * @Description: File Description Here...
  *
@@ -17,6 +17,11 @@ import (
 	"errors"
 )
 
+/**
+ * @description:
+ * @param {string} privateKeyPEM
+ * @return {*}
+ */
 func LoadPrivateKeyFromPEM(privateKeyPEM string) (*rsa.PrivateKey, error) {
 	block, _ := pem.Decode([]byte(privateKeyPEM))
 	if block == nil {
