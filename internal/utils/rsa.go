@@ -1,8 +1,8 @@
 /*
  * @Author: Jeffrey Zhu 1624410543@qq.com
  * @Date: 2025-05-08 00:06:43
- * @LastEditors: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
- * @LastEditTime: 2025-07-28 14:47:09
+ * @LastEditors: JeffreyZhu 1624410543@qq.com
+ * @LastEditTime: 2025-07-28 15:04:47
  * @FilePath: \RocketVPN\go-backend\utils\RSA.go
  * @Description: File Description Here...
  *
@@ -22,8 +22,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"sort"
-	"strings"
 )
 
 // func main() {
@@ -188,41 +186,31 @@ func VerifyString(publicKey *rsa.PublicKey, data string, base64Signature string)
 }
 
 func SortMapAndSignRSA(m map[string]interface{}) (string, string) {
-	signParams := make(map[string]string)
 
-	for k, v := range m {
-		if v != "" && k != "sign" && k != "sign_type" {
-			signParams[k] = fmt.Sprint(v)
-		}
-	}
-
-	// 按ASCII码排序参数名
-	var keys []string
-	for k := range signParams {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-
-	// 拼接参数
-	var signStr strings.Builder
-	for i, k := range keys {
-		if i > 0 {
-			signStr.WriteString("&")
-		}
-		signStr.WriteString(string(k))
-		signStr.WriteString("=")
-		signStr.WriteString(string(signParams[k]))
-	}
-	// 添加商户密钥并计算RSA签名
-	finalStr := signStr.String()
 	privateKey, _ := getKeyPair()
-
 	// 3. 创建签名
-	signature, err := SignStringRSA(privateKey, finalStr)
+	signature, err := SignStringRSA(privateKey, SortMap(m))
 	if err != nil {
 		log.Fatalf("签名失败: %v", err)
 	}
 
 	fmt.Printf("签名结果 (Base64):\n%s\n", signature)
 	return signature, ""
+}
+
+func VerifyStringRSA(m map[string]interface{}, signature string) bool {
+
+	_, publicKey := getKeyPair()
+
+	originalStr := SortMap(m)
+
+	// signature, err := SignStringRSA(privateKey, originalStr)
+
+	if VerifyString(publicKey, originalStr, signature) {
+		fmt.Println("✅ 签名验证成功 - 数据完整且来源可信")
+		return true
+	} else {
+		fmt.Println("❌ 签名验证失败 - 数据可能被篡改")
+		return false
+	}
 }

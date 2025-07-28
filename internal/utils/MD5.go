@@ -1,8 +1,8 @@
 /*
  * @Author: JeffreyZhu 1624410543@qq.com
  * @Date: 2025-07-27 17:13:53
- * @LastEditors: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
- * @LastEditTime: 2025-07-28 14:43:54
+ * @LastEditors: JeffreyZhu 1624410543@qq.com
+ * @LastEditTime: 2025-07-28 15:11:00
  * @FilePath: /workspace/rainbow-pay-sdk-go/internal/utils/MD5.go
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
