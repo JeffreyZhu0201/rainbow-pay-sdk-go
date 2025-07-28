@@ -1,8 +1,8 @@
 /*
  * @Author: Jeffrey Zhu 1624410543@qq.com
  * @Date: 2025-03-31 13:41:43
- * @LastEditors: JeffreyZhu 1624410543@qq.com
- * @LastEditTime: 2025-07-27 17:41:19
+ * @LastEditors: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
+ * @LastEditTime: 2025-07-28 14:44:08
  * @FilePath: \rainbow-pay-sdk-go\pkg\PaySdk\makePayment.go
  * @Description: File Description Here...
  *
@@ -48,8 +48,17 @@ func CreateOrder(order models.Order) models.Response {
 	// 这里可以使用 Stripe 或其他支付网关的 SDK 来处理支付请求
 	// 例如，创建一个支付意图并返回给前端
 
-	signStr, _ := utils.SortMapAndSign(paymentParams)
-	paymentUrl, err := utils.Post(os.Getenv("PAY_URL") + "?" + signStr.String())
+	var signStr string
+
+	switch paymentParams["sign_type"] {
+	case "MD5":
+		signStr, _ = utils.SortMapAndSignMD5(paymentParams)
+	case "RSA":
+		signStr, _ = utils.SortMapAndSignRSA(paymentParams)
+	default: // 默认使用 MD5 签名
+		signStr, _ = utils.SortMapAndSignMD5(paymentParams)
+	}
+	paymentUrl, err := utils.Post(os.Getenv("PAY_URL") + "?" + signStr)
 
 	if err != nil {
 		// 处理错误

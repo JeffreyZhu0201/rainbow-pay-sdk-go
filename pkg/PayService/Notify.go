@@ -1,8 +1,8 @@
 /*
  * @Author: JeffreyZhu 1624410543@qq.com
  * @Date: 2025-07-27 17:42:29
- * @LastEditors: JeffreyZhu 1624410543@qq.com
- * @LastEditTime: 2025-07-27 17:46:19
+ * @LastEditors: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
+ * @LastEditTime: 2025-07-28 14:47:28
  * @FilePath: /workspace/rainbow-pay-sdk-go/pkg/PayService/Notify.go
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -46,7 +46,16 @@ func Notify(c *gin.Context) models.Response {
 		return models.Response{Code: 400, Message: "Invalid trade_status"}
 	}
 
-	_, sign := utils.SortMapAndSign(queryParams)
+	var sign string
+
+	switch queryParams["sign_type"] {
+	case "MD5":
+		sign, _ = utils.SortMapAndSignMD5(queryParams)
+	case "RSA":
+		sign, _ = utils.SortMapAndSignRSA(queryParams)
+	default:
+		return models.Response{Code: 400, Message: "不支持该签名类型"}
+	}
 
 	if sign != c.Query("sign") {
 		log.Println("invalid sign", sign)
