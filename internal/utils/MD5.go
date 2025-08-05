@@ -1,5 +1,16 @@
+/*
+ * @Author: JeffreyZhu 1624410543@qq.com
+ * @Date: 2025-07-27 17:13:53
+ * @LastEditors: JeffreyZhu 1624410543@qq.com
+ * @LastEditTime: 2025-07-28 15:11:00
+ * @FilePath: /workspace/rainbow-pay-sdk-go/internal/utils/MD5.go
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 package utils
 
+// Package utils provides common utility functions including MD5 hashing operations.
+// The imported packages support MD5 hash generation, hex encoding, string manipulation,
+// file operations, and sorting functionality required by the utilities.
 import (
 	"crypto/md5"
 	"encoding/hex"
@@ -9,13 +20,12 @@ import (
 	"strings"
 )
 
-func MD5(str string) string {
-	h := md5.New()
-	h.Write([]byte(str))
-	return hex.EncodeToString(h.Sum(nil))
-}
-
-func SortMapAndSign(m map[string]interface{}) (strings.Builder, string) {
+/**
+ * @description:
+ * @param {map[string]interface{}}
+ * @return {*}
+ */
+func SortMapAndSignMD5(m map[string]interface{}) (string, string) {
 
 	signParams := make(map[string]string)
 
@@ -50,5 +60,5 @@ func SortMapAndSign(m map[string]interface{}) (strings.Builder, string) {
 	//paymentParams["sign"] = hex.EncodeToString(h.Sum(nil))
 	signStr.WriteString("&sign_type=MD5&sign=" + hex.EncodeToString(h.Sum(nil)))
 
-	return signStr, hex.EncodeToString(h.Sum(nil))
+	return signStr.String(), hex.EncodeToString(h.Sum(nil))
 }
